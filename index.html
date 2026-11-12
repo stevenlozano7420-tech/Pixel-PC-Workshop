@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="description" content="A hands-on pixel art game about taking a desktop computer apart and rebuilding it, piece by piece.">
+  <title>Pixel PC Workshop</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="game.js" defer></script>
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true">
+          <path fill="#62e6d3" d="M14 4h20v6h6v4h4v20h-4v4h-6v6H14v-6H8v-4H4V14h4v-4h6z"/>
+          <path fill="#0b1220" d="M14 14h20v20H14z"/>
+          <path fill="#ffc857" d="M18 18h5v5h-5zm9 0h5v5h-5zm-9 9h5v5h-5zm9 0h5v5h-5z"/>
+        </svg>
+        <div>
+          <h1>PIXEL PC <span>WORKSHOP</span></h1>
+          <p>TEAR DOWN. LEARN. REBUILD.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-button" id="helpButton" type="button" aria-label="How to play">
+          <span class="button-icon" aria-hidden="true">?</span><span class="button-label">HOW TO PLAY</span>
+        </button>
+        <button class="icon-button" id="soundButton" type="button" aria-label="Turn sound off" aria-pressed="true">
+          <span class="button-icon" id="soundIcon" aria-hidden="true">♪</span><span class="button-label" id="soundLabel">SOUND ON</span>
+        </button>
+        <button class="icon-button" id="restartButton" type="button" aria-label="Restart game">
+          <span class="button-icon" aria-hidden="true">↻</span><span class="button-label">RESTART</span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-strip" aria-label="Game progress">
+        <div class="phase-display">
+          <span class="eyebrow">CURRENT TASK</span>
+          <strong id="phaseLabel">01 / DISASSEMBLY</strong>
+        </div>
+        <div class="progress-block">
+          <div class="progress-copy">
+            <span id="progressLabel">PARTS REMOVED</span>
+            <span id="progressCount">0 / 8</span>
+          </div>
+          <div class="progress-track" id="progressTrack" role="progressbar" aria-label="Parts removed" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <span class="eyebrow">SCORE</span>
+          <strong id="score">0000</strong>
+        </div>
+        <div class="stat-block">
+          <span class="eyebrow">TIME</span>
+          <strong id="timer">00:00</strong>
+        </div>
+      </section>
+
+      <section class="build-overview" aria-labelledby="buildName">
+        <div class="build-identity">
+          <span class="eyebrow">ACTIVE BLUEPRINT</span>
+          <div class="build-title-line">
+            <h2 id="buildName">Classic Gaming Tower</h2>
+            <span id="buildYear">2016 // CLASSIC</span>
+          </div>
+          <p id="buildDescription">A practical gaming PC with solid-state and mechanical storage.</p>
+        </div>
+        <div class="build-specs" id="buildSpecs" aria-label="Build specifications"></div>
+        <div class="build-tools">
+          <button class="small-button" id="buildsButton" type="button"><span aria-hidden="true">⇄</span> CHANGE BUILD</button>
+          <button class="small-button" id="guideButton" type="button"><span aria-hidden="true">▤</span> PART GUIDE</button>
+          <button class="small-button" id="quizButton" type="button"><span aria-hidden="true">?</span> QUICK QUIZ</button>
+        </div>
+      </section>
+
+      <div class="game-layout">
+        <section class="workbench-panel" aria-label="Interactive computer workbench">
+          <div class="panel-topline">
+            <span class="live-label"><i aria-hidden="true"></i> LIVE WORKBENCH</span>
+            <span class="action-badge" id="actionBadge">CLICK THE GLOWING PART</span>
+          </div>
+
+          <div class="workbench-viewbar" aria-label="Workbench view controls">
+            <div class="view-control-group">
+              <button class="view-control-button" id="freeModeButton" type="button" aria-pressed="false">FREE BUILD</button>
+              <button class="view-control-button" id="viewModeButton" type="button" aria-pressed="false"><span aria-hidden="true">◈</span> 3D VIEW</button>
+              <div class="case-view-controls" id="caseViewControls" hidden>
+                <button class="view-control-button" id="xrayButton" type="button" aria-pressed="false">X-RAY CASE</button>
+                <button class="view-control-button" id="sidePanelButton" type="button" aria-pressed="false">REMOVE SIDE</button>
+                <span class="hardware-status" id="hardwareStatus">0 / 0 HARDWARE OFF</span>
+              </div>
+            </div>
+            <div class="view-control-group zoom-controls">
+              <span class="view-help" id="viewHelp">SCROLL TO ZOOM</span>
+              <button class="zoom-button" id="zoomOutButton" type="button" aria-label="Zoom out">−</button>
+              <output class="zoom-label" id="zoomLabel" aria-live="polite">100%</output>
+              <button class="zoom-button" id="zoomInButton" type="button" aria-label="Zoom in">+</button>
+              <button class="view-control-button" id="resetViewButton" type="button">RESET VIEW</button>
+            </div>
+          </div>
+
+          <div class="workbench" id="workbench">
+            <div class="bench-label bench-label-top" aria-hidden="true">BAY_01 // ANTI-STATIC ZONE</div>
+            <svg id="computerSvg" class="computer-svg" viewBox="0 0 680 500" role="group" aria-labelledby="computerTitle computerDescription">
+              <title id="computerTitle">Interactive open desktop computer</title>
+              <desc id="computerDescription">Click the highlighted computer part to remove it. During reassembly, select a tray part and then click its outlined location.</desc>
+              <defs>
+                <pattern id="caseMesh" width="12" height="12" patternUnits="userSpaceOnUse">
+                  <rect width="12" height="12" fill="#1a2a39"/>
+                  <rect width="4" height="4" x="2" y="2" fill="#314657"/>
+                </pattern>
+              </defs>
+
+              <g class="case-drawing" shape-rendering="crispEdges" aria-hidden="true">
+                <rect class="case-shadow" x="65" y="450" width="554" height="18"/>
+                <rect x="93" y="442" width="54" height="18" fill="#111923"/>
+                <rect x="519" y="442" width="54" height="18" fill="#111923"/>
+                <rect class="case-shell" x="48" y="20" width="578" height="430" fill="#26394a" stroke="#71899a" stroke-width="6"/>
+                <rect class="case-interior" x="65" y="36" width="522" height="398" fill="#0c151f" stroke="#111c27" stroke-width="6"/>
+                <rect x="79" y="50" width="492" height="370" fill="#142330"/>
+                <rect x="584" y="38" width="28" height="394" fill="#344c5e"/>
+                <rect x="592" y="60" width="12" height="136" fill="url(#caseMesh)"/>
+                <rect x="592" y="214" width="12" height="70" fill="#172530"/>
+                <rect x="592" y="300" width="12" height="12" fill="#62e6d3"/>
+                <rect x="592" y="326" width="12" height="6" fill="#71899a"/>
+                <rect x="78" y="356" width="492" height="64" fill="#101b26"/>
+                <path d="M87 67h18v18H87zm0 265h18v18H87zm458-265h18v18h-18zm0 265h18v18h-18z" fill="#314657"/>
+                <path d="M94 73h5v5h-5zm0 265h5v5h-5zm458-265h5v5h-5zm0 265h5v5h-5z" fill="#8fa4b0"/>
+                <path d="M106 329h28v-33h22v-19h13v-46h13" fill="none" stroke="#b88238" stroke-width="5"/>
+                <path d="M531 281h25v53h-25v24h-57" fill="none" stroke="#3c7580" stroke-width="5"/>
+                <text id="caseModelLabel" x="88" y="397" fill="#3f5869" font-size="10" font-family="monospace">PX-16 / ATX CHASSIS</text>
+              </g>
+
+              <g id="part-motherboard" class="computer-part" data-part="motherboard" role="button" tabindex="0" aria-label="Motherboard" shape-rendering="crispEdges">
+                <rect x="126" y="67" width="370" height="279" fill="#205c55" stroke="#62a47e" stroke-width="4"/>
+                <path d="M143 86h91v17h43m-134 33h64v27h49m-113 60h99v-18h40m-99 99v-41h39m292-172h-57v31h-31m88 105h-65v-25h-31m-43 105v-42h-41" fill="none" stroke="#3f8b70" stroke-width="3"/>
+                <path d="M143 104h8v8h-8zm0 202h8v8h-8zm330-202h8v8h-8zm0 202h8v8h-8z" fill="#c4b677"/>
+                <rect x="151" y="92" width="68" height="40" fill="#24343b" stroke="#73908a" stroke-width="3"/>
+                <rect x="159" y="100" width="52" height="24" fill="#17242b"/>
+                <rect x="154" y="151" width="47" height="48" fill="#263a3d"/>
+                <path d="M161 159h33v5h-33zm0 12h33v5h-33zm0 12h33v5h-33z" fill="#5b8174"/>
+                <rect x="166" y="239" width="267" height="12" fill="#c6d2c0"/>
+                <rect x="166" y="284" width="267" height="10" fill="#273d40"/>
+                <rect x="166" y="307" width="214" height="9" fill="#273d40"/>
+                <rect x="454" y="270" width="24" height="51" fill="#172d32"/>
+                <path d="M139 78h9v9h-9zm335 0h9v9h-9zM139 328h9v9h-9zm335 0h9v9h-9z" fill="#a9c5ae"/>
+                <text id="motherboardLabel" x="315" y="335" fill="#79aa8c" font-size="9" font-family="monospace">PX-16 / DDR4 / ATX</text>
+              </g>
+
+              <g id="part-psu" class="computer-part" data-part="psu" role="button" tabindex="0" aria-label="Power supply" shape-rendering="crispEdges">
+                <rect x="106" y="352" width="192" height="82" fill="#36414d" stroke="#8797a3" stroke-width="4"/>
+                <rect x="117" y="363" width="92" height="58" fill="#1a242d"/>
+                <circle cx="163" cy="392" r="24" fill="#253641" stroke="#536a78" stroke-width="3"/>
+                <path d="M163 371v42m-21-21h42m-36-15 30 30m0-30-30 30" stroke="#617b88" stroke-width="4"/>
+                <rect x="222" y="364" width="61" height="19" fill="#202d36"/>
+                <text id="psuWattLabel" x="229" y="377" fill="#ffc857" font-size="10" font-family="monospace">650W</text>
+                <path d="M225 395h9v9h-9zm15 0h9v9h-9zm15 0h9v9h-9zm15 0h9v9h-9z" fill="#111a21"/>
+                <text x="225" y="420" fill="#9dabb4" font-size="8" font-family="monospace">POWER</text>
+              </g>
+
+              <g id="part-cpu" class="computer-part" data-part="cpu" role="button" tabindex="0" aria-label="CPU processor" shape-rendering="crispEdges">
+                <rect x="279" y="133" width="82" height="78" fill="#17282c" stroke="#8ba69b" stroke-width="4"/>
+                <rect x="288" y="142" width="64" height="60" fill="#c3a75a"/>
+                <rect x="295" y="149" width="50" height="46" fill="#9ba9a5" stroke="#e2e8cf" stroke-width="3"/>
+                <path d="M291 138v5m12-5v5m12-5v5m12-5v5m12-5v5m-48 62v5m12-5v5m12-5v5m12-5v5m12-5v5" stroke="#e8ce79" stroke-width="3"/>
+                <path d="M299 153h8v8h-8z" fill="#ffc857"/>
+                <text x="302" y="178" fill="#40575b" font-size="9" font-family="monospace">CPU</text>
+              </g>
+
+              <g id="part-ssd" class="computer-part" data-part="ssd" role="button" tabindex="0" aria-label="M.2 solid state drive" shape-rendering="crispEdges">
+                <rect x="354" y="222" width="124" height="33" fill="#297568" stroke="#7db897" stroke-width="3"/>
+                <rect x="363" y="228" width="30" height="20" fill="#172b31"/>
+                <rect x="400" y="228" width="30" height="20" fill="#172b31"/>
+                <rect x="437" y="228" width="24" height="20" fill="#172b31"/>
+                <path d="M469 228v20m-4-17v14" stroke="#e2c46e" stroke-width="3"/>
+                <circle cx="359" cy="238" r="3" fill="#d8dbc1"/>
+              </g>
+
+              <g id="part-cooler" class="computer-part" data-part="cooler" role="button" tabindex="0" aria-label="CPU cooler" shape-rendering="crispEdges">
+                <rect x="259" y="99" width="134" height="139" fill="#3b4d59" stroke="#9bb0b8" stroke-width="5"/>
+                <rect x="270" y="110" width="112" height="116" fill="#17252e"/>
+                <circle cx="326" cy="168" r="48" fill="#243b46" stroke="#58717d" stroke-width="4"/>
+                <path d="M326 160V124h18v20l-10 16zm8 12 34-18v21l-17 15-18-7zm-8 10 18 34h-22l-14-18 7-17zm-10-10-34 18v-21l17-15 18 7z" fill="#62a1a0"/>
+                <rect x="315" y="157" width="23" height="23" fill="#ffc857"/>
+                <rect x="320" y="162" width="13" height="13" fill="#263944"/>
+                <path d="M254 121h8v8h-8zm136 0h8v8h-8zm-136 99h8v8h-8zm136 0h8v8h-8z" fill="#c5d0cb"/>
+                <path d="M387 109h18v-17h21v27" fill="none" stroke="#293c47" stroke-width="5"/>
+              </g>
+
+              <g id="part-ram" class="computer-part" data-part="ram" role="button" tabindex="0" aria-label="RAM memory" shape-rendering="crispEdges">
+                <rect x="405" y="83" width="27" height="148" fill="#318674" stroke="#8bc4a0" stroke-width="3"/>
+                <rect x="440" y="83" width="27" height="148" fill="#318674" stroke="#8bc4a0" stroke-width="3"/>
+                <path d="M410 94h17v21h-17zm0 30h17v21h-17zm0 30h17v21h-17zm35-60h17v21h-17zm0 30h17v21h-17zm0 30h17v21h-17z" fill="#19343a"/>
+                <path d="M410 233v7m7-7v7m7-7v7m26-7v7m7-7v7" stroke="#e6c967" stroke-width="3"/>
+                <path d="M400 78h37v7h-37zm35 0h37v7h-37z" fill="#c4d4c8"/>
+              </g>
+
+              <g id="part-gpu" class="computer-part" data-part="gpu" role="button" tabindex="0" aria-label="Graphics card" shape-rendering="crispEdges">
+                <rect x="147" y="247" width="329" height="84" fill="#314553" stroke="#8da5af" stroke-width="4"/>
+                <rect x="136" y="253" width="14" height="91" fill="#a4b2ae"/>
+                <path d="M139 264h8v17h-8zm0 27h8v17h-8zm0 27h8v17h-8z" fill="#314553"/>
+                <rect x="161" y="258" width="300" height="59" fill="#1a2a34"/>
+                <circle cx="235" cy="287" r="25" fill="#2c424d" stroke="#55727d" stroke-width="3"/>
+                <circle cx="384" cy="287" r="25" fill="#2c424d" stroke="#55727d" stroke-width="3"/>
+                <path d="M235 266v42m-21-21h42m-36-15 30 30m0-30-30 30m142-36v42m-21-21h42m-36-15 30 30m0-30-30 30" stroke="#65969a" stroke-width="4"/>
+                <rect x="223" y="275" width="24" height="24" fill="#17262f"/>
+                <rect x="372" y="275" width="24" height="24" fill="#17262f"/>
+                <path d="M180 333v10h237v-10" fill="#d6b859"/>
+                <rect x="289" y="264" width="42" height="16" fill="#ffc857"/>
+                <text x="295" y="275" fill="#263944" font-size="9" font-family="monospace">GPU</text>
+                <path d="M422 239h42v9h-42z" fill="#1b2830"/>
+              </g>
+
+              <g id="part-optical" class="computer-part" data-part="optical" role="button" tabindex="-1" aria-label="CD-ROM drive" shape-rendering="crispEdges">
+                <rect x="499" y="62" width="68" height="43" fill="#a8a58e" stroke="#d2cfb5" stroke-width="3"/>
+                <rect x="505" y="69" width="55" height="7" fill="#343b3b"/>
+                <rect x="505" y="82" width="31" height="13" fill="#7c7d70"/>
+                <circle cx="552" cy="89" r="5" fill="#ddd9b8"/>
+                <text x="508" y="92" fill="#d7d5bd" font-size="7" font-family="monospace">4X CD</text>
+              </g>
+
+              <g id="part-floppy" class="computer-part" data-part="floppy" role="button" tabindex="-1" aria-label="Floppy disk drive" shape-rendering="crispEdges">
+                <rect x="499" y="112" width="68" height="43" fill="#b9b49a" stroke="#ded9bd" stroke-width="3"/>
+                <rect x="505" y="120" width="48" height="6" fill="#2e3535"/>
+                <rect x="554" y="118" width="7" height="12" fill="#777b70"/>
+                <rect x="506" y="137" width="18" height="8" fill="#8c8b78"/>
+                <circle cx="554" cy="141" r="3" fill="#a4e635"/>
+                <text x="527" y="144" fill="#555e59" font-size="7" font-family="monospace">1.44</text>
+              </g>
+
+              <g id="part-hdd" class="computer-part" data-part="hdd" role="button" tabindex="-1" aria-label="Hard disk drive" shape-rendering="crispEdges">
+                <rect x="496" y="164" width="73" height="61" fill="#8999a0" stroke="#c0ccd0" stroke-width="3"/>
+                <rect x="503" y="171" width="59" height="39" fill="#c4cbc5"/>
+                <circle cx="523" cy="190" r="13" fill="#a3b1b1" stroke="#71878b" stroke-width="2"/>
+                <circle cx="523" cy="190" r="4" fill="#4d636b"/>
+                <path d="M537 178h18v5h-18zm0 9h18v5h-18zm0 9h12v5h-12z" fill="#72878a"/>
+                <rect x="505" y="214" width="55" height="5" fill="#394e58"/>
+                <text x="535" y="207" fill="#435a60" font-size="7" font-family="monospace">HDD</text>
+              </g>
+
+              <g id="part-fans" class="computer-part" data-part="fans" role="button" tabindex="-1" aria-label="Case cooling fans" shape-rendering="crispEdges">
+                <rect x="501" y="67" width="64" height="259" fill="#162631" stroke="#496473" stroke-width="3"/>
+                <g fill="#213b47" stroke="#62a1a0" stroke-width="3">
+                  <rect x="507" y="74" width="52" height="72"/>
+                  <rect x="507" y="157" width="52" height="72"/>
+                  <rect x="507" y="240" width="52" height="72"/>
+                </g>
+                <g fill="#2f5960" stroke="#7bc5bc" stroke-width="2">
+                  <circle cx="533" cy="110" r="21"/><circle cx="533" cy="193" r="21"/><circle cx="533" cy="276" r="21"/>
+                </g>
+                <path d="M533 94v32m-16-16h32M533 177v32m-16-16h32M533 260v32m-16-16h32" stroke="#62e6d3" stroke-width="4"/>
+                <path d="M526 103h14v14h-14zm0 83h14v14h-14zm0 83h14v14h-14z" fill="#ffc857"/>
+              </g>
+
+              <g id="part-panel" class="computer-part" data-part="panel" role="button" tabindex="0" aria-label="Side panel" shape-rendering="crispEdges">
+                <rect x="70" y="42" width="506" height="388" fill="#29485b" fill-opacity="0.86" stroke="#7f9aaa" stroke-width="5"/>
+                <rect x="86" y="58" width="474" height="356" fill="none" stroke="#47677a" stroke-width="3"/>
+                <rect x="104" y="82" width="162" height="96" fill="url(#caseMesh)" stroke="#608092" stroke-width="3"/>
+                <path d="M470 93h62v8h-62zm0 18h62v8h-62zm0 18h62v8h-62zm0 18h62v8h-62z" fill="#1d3444"/>
+                <rect x="504" y="225" width="20" height="72" fill="#7793a2"/>
+                <rect x="509" y="233" width="10" height="56" fill="#263f50"/>
+                <path d="M77 51h18v18H77zm474 0h18v18h-18zM77 394h18v18H77zm474 0h18v18h-18z" fill="#c0ccd0"/>
+                <path d="M82 56h8v8h-8zm474 0h8v8h-8zM82 399h8v8h-8zm474 0h8v8h-8z" fill="#536b77"/>
+                <rect x="266" y="369" width="117" height="23" fill="#1d3444"/>
+                <text x="279" y="384" fill="#91aab7" font-size="11" font-family="monospace">SIDE PANEL</text>
+              </g>
+
+              <g class="part-slots" shape-rendering="crispEdges">
+                <g class="part-slot" data-slot="motherboard" role="button" tabindex="-1" aria-label="Install motherboard here"><rect x="126" y="67" width="370" height="279"/><text x="230" y="211">MOTHERBOARD HERE</text></g>
+                <g class="part-slot" data-slot="psu" role="button" tabindex="-1" aria-label="Install power supply here"><rect x="106" y="352" width="192" height="82"/><text x="159" y="397">PSU HERE</text></g>
+                <g class="part-slot" data-slot="ssd" role="button" tabindex="-1" aria-label="Install SSD here"><rect x="354" y="222" width="124" height="33"/><text x="373" y="243">SSD HERE</text></g>
+                <g class="part-slot" data-slot="cpu" role="button" tabindex="-1" aria-label="Install CPU here"><rect x="279" y="133" width="82" height="78"/><text x="297" y="177">CPU</text></g>
+                <g class="part-slot" data-slot="cooler" role="button" tabindex="-1" aria-label="Install CPU cooler here"><rect x="259" y="99" width="134" height="139"/><text x="282" y="173">COOLER</text></g>
+                <g class="part-slot" data-slot="ram" role="button" tabindex="-1" aria-label="Install RAM here"><rect x="400" y="78" width="72" height="163"/><text x="413" y="164">RAM</text></g>
+                <g class="part-slot" data-slot="gpu" role="button" tabindex="-1" aria-label="Install graphics card here"><rect x="136" y="239" width="340" height="105"/><text x="270" y="294">GPU HERE</text></g>
+                <g class="part-slot" data-slot="optical" role="button" tabindex="-1" aria-label="Install CD-ROM drive here"><rect x="496" y="59" width="74" height="49"/><text x="504" y="89">CD-ROM</text></g>
+                <g class="part-slot" data-slot="floppy" role="button" tabindex="-1" aria-label="Install floppy drive here"><rect x="496" y="109" width="74" height="49"/><text x="503" y="140">FLOPPY</text></g>
+                <g class="part-slot" data-slot="hdd" role="button" tabindex="-1" aria-label="Install hard drive here"><rect x="493" y="161" width="79" height="67"/><text x="508" y="198">HDD</text></g>
+                <g class="part-slot" data-slot="fans" role="button" tabindex="-1" aria-label="Install case fans here"><rect x="498" y="64" width="70" height="265"/><text x="510" y="201">FANS</text></g>
+                <g class="part-slot" data-slot="panel" role="button" tabindex="-1" aria-label="Install side panel here"><rect x="70" y="42" width="506" height="388"/><text x="264" y="241">CLOSE THE CASE</text></g>
+              </g>
+            </svg>
+            <div class="workbench-3d" id="workbench3d" role="group" aria-label="Interactive 3D computer workbench. Drag to orbit, scroll to zoom, or use the arrow and plus or minus keys." tabindex="0" hidden>
+              <div class="scene-3d" id="scene3d"></div>
+            </div>
+            <div class="bench-label bench-label-bottom" aria-hidden="true"><span>POWER: DISCONNECTED</span><span id="benchModel">MODEL: PX-16</span></div>
+          </div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="guide-card" aria-labelledby="instructionTitle">
+            <div class="guide-heading">
+              <div class="nova-avatar" aria-hidden="true">
+                <span class="nova-antenna"></span>
+                <span class="nova-face"><i></i><i></i><b></b></span>
+              </div>
+              <div class="guide-name">
+                <span>WORKBENCH GUIDE</span>
+                <strong>NOVA</strong>
+              </div>
+              <span class="step-number" id="stepNumber">01</span>
+            </div>
+            <h2 id="instructionTitle">Remove the side panel</h2>
+            <p class="instruction-text" id="instructionText">Loosen the thumbscrews, then slide the panel toward the back of the case.</p>
+            <div class="tip-box">
+              <span class="tip-icon" aria-hidden="true">!</span>
+              <p id="tipText">Keep the screws in a small container so they do not get lost.</p>
+            </div>
+            <div class="guide-actions">
+              <button class="small-button hint-button" id="hintButton" type="button"><span aria-hidden="true">✦</span> SHOW HINT <small>−25 PTS</small></button>
+              <button class="text-button" id="detailButton" type="button" aria-expanded="false" aria-controls="detailText">WHY THIS STEP?</button>
+            </div>
+            <p class="detail-text" id="detailText" hidden></p>
+          </section>
+
+          <section class="tray-card" aria-labelledby="trayTitle">
+            <div class="tray-heading">
+              <h2 id="trayTitle">PARTS TRAY</h2>
+              <span id="trayCount">00 / 08</span>
+            </div>
+            <p class="tray-help" id="trayHelp">Removed parts will be safely stored here.</p>
+            <div class="parts-tray" id="partsTray">
+              <div class="empty-tray">
+                <svg viewBox="0 0 64 48" aria-hidden="true"><path d="M5 13h54v30H5zM15 5h34v8H15z" fill="none" stroke="currentColor" stroke-width="4"/><path d="M24 24h16v8H24z" fill="currentColor"/></svg>
+                <span>TRAY IS EMPTY</span>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="game-footer">
+        <span><i class="footer-dot" aria-hidden="true"></i> SAFETY FIRST: THIS PC IS OFF &amp; UNPLUGGED</span>
+        <span class="desktop-tip">CLICK / TAP A PART · ENTER / SPACE ALSO WORK</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="introModal">
+    <section class="game-dialog intro-dialog" role="dialog" aria-modal="true" aria-labelledby="introTitle">
+      <button class="dialog-close" id="closeIntroButton" type="button" aria-label="Close build selection" hidden>×</button>
+      <div class="dialog-pixels" aria-hidden="true"></div>
+      <span class="modal-eyebrow">THREE ERAS. ONE WORKBENCH.</span>
+      <h2 id="introTitle">CHOOSE YOUR<br>PC BUILD</h2>
+      <p class="dialog-copy">Travel from floppy disks to NVMe storage. Each blueprint has different parts, instructions, specifications, and quiz questions.</p>
+      <div class="build-selector" id="buildSelector" role="group" aria-label="Choose a PC build"></div>
+      <div class="selected-build-specs" id="selectedBuildSpecs" aria-live="polite"></div>
+      <div class="safety-note"><span aria-hidden="true">!</span><p><strong>REAL-WORLD RULE</strong>Shut down, unplug, and ground yourself before touching real hardware. Never open a power supply. These are illustrative builds, not model-specific repair guides.</p></div>
+      <button class="primary-button" id="startButton" type="button">POWER OFF &amp; START <span aria-hidden="true">→</span></button>
+      <span class="dialog-footnote" id="introFootnote">9 PARTS · GUIDED TEARDOWN &amp; REBUILD</span>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="phaseModal" hidden>
+    <section class="game-dialog phase-dialog" role="dialog" aria-modal="true" aria-labelledby="phaseModalTitle">
+      <div class="achievement-icon" id="achievementIcon" aria-hidden="true">★</div>
+      <span class="modal-eyebrow" id="phaseModalEyebrow">CHECKPOINT REACHED</span>
+      <h2 id="phaseModalTitle">STRIP-DOWN COMPLETE!</h2>
+      <p class="dialog-copy" id="phaseModalText"></p>
+      <div class="completion-stats" id="completionStats" hidden></div>
+      <button class="secondary-button completion-quiz-button" id="completionQuizButton" type="button" hidden>TAKE THE BUILD QUIZ</button>
+      <button class="secondary-button completion-build-button" id="completionBuildButton" type="button" hidden>CHOOSE OTHER BUILD</button>
+      <button class="primary-button" id="phaseModalButton" type="button">START REASSEMBLY <span aria-hidden="true">→</span></button>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="guideModal" hidden>
+    <section class="game-dialog guide-dialog" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+      <button class="dialog-close" id="closeGuideButton" type="button" aria-label="Close component guide">×</button>
+      <span class="modal-eyebrow" id="guideBuildLabel">2016 CLASSIC GAMING TOWER</span>
+      <h2 id="guideTitle">PART FIELD GUIDE</h2>
+      <p class="dialog-copy">Select a component to explore its 3D view, learn what it does, and see how to handle it safely.</p>
+      <div class="guide-layout">
+        <div class="guide-part-list" id="guidePartList" role="group" aria-label="Components in this build"></div>
+        <article class="guide-part-detail" aria-live="polite">
+          <div class="guide-part-icon" id="guidePartIcon" role="img" aria-label="3D component illustration"></div>
+          <span class="guide-part-spec" id="guidePartSpec"></span>
+          <h3 id="guidePartName"></h3>
+          <p class="guide-part-purpose" id="guidePartPurpose"></p>
+          <div class="guide-info-box"><strong>DID YOU KNOW?</strong><p id="guidePartFact"></p></div>
+          <div class="guide-info-box care"><strong>HANDLE WITH CARE</strong><p id="guidePartCare"></p></div>
+        </article>
+      </div>
+      <div class="compatibility-box">
+        <strong>BUILD COMPATIBILITY CHECKLIST</strong>
+        <ul id="compatibilityList"></ul>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="quizModal" hidden>
+    <section class="game-dialog quiz-dialog" role="dialog" aria-modal="true" aria-labelledby="quizQuestion">
+      <button class="dialog-close" id="closeQuizButton" type="button" aria-label="Close quick quiz">×</button>
+      <span class="modal-eyebrow" id="quizBuildLabel">NOVA'S KNOWLEDGE CHECK</span>
+      <div class="quiz-progress"><span id="quizProgress">QUESTION 1 / 3</span><span id="quizScore">0 CORRECT</span></div>
+      <h2 id="quizQuestion">Question</h2>
+      <div class="quiz-answers" id="quizAnswers"></div>
+      <p class="quiz-feedback" id="quizFeedback" role="status" aria-live="polite"></p>
+      <button class="primary-button" id="quizNextButton" type="button" hidden>NEXT QUESTION <span aria-hidden="true">→</span></button>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="helpModal" hidden>
+    <section class="game-dialog help-dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <button class="dialog-close" id="closeHelpButton" type="button" aria-label="Close how to play">×</button>
+      <span class="modal-eyebrow">NOVA'S FIELD MANUAL</span>
+      <h2 id="helpTitle">HOW TO PLAY</h2>
+      <ol class="help-list">
+        <li><b>1</b><div><strong>FOLLOW THE GLOW</strong><p>During disassembly, click the highlighted part. Nova explains every move.</p></div></li>
+        <li><b>2</b><div><strong>USE YOUR PARTS TRAY</strong><p>To rebuild, choose the named part in the tray, then click its dashed outline in the case.</p></div></li>
+        <li><b>3</b><div><strong>REVERSE THE ORDER</strong><p>The last part out is the first part back in. Hints cost 25 points; mistakes never cost points.</p></div></li>
+        <li><b>4</b><div><strong>EXPLORE IN 3D</strong><p>Toggle 3D View and drag to orbit the PC. Components sit directly on the motherboard. Click screws or exposed connector plugs to remove them before taking parts out. Curved cables route behind components with exposed connector plugs, and exterior ports are visible from outside the case.</p></div></li>
+        <li><b>5</b><div><strong>TRY FREE BUILD</strong><p>Free Build lets you remove and reinstall any part in any order without a completion check. Switching between guided and free modes starts a fresh workbench.</p></div></li>
+      </ol>
+      <div class="sequence-box"><strong id="helpSequenceTitle">TEARDOWN SEQUENCE</strong><p id="helpSequence">Side panel → Graphics card → RAM → CPU cooler → CPU → SSD → Power supply → Motherboard</p></div>
+      <p class="help-note" id="helpBuildNote">Keyboard: Tab to a part or button, then press Enter or Space. Use the part guide to inspect every component and the quick quiz to test your knowledge. This is a simplified learning sequence, not a model-specific repair guide.</p>
+      <button class="primary-button" id="gotItButton" type="button">GOT IT!</button>
+    </section>
+  </div>
+</body>
+</html>
