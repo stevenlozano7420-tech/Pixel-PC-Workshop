@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" shape-rendering="crispEdges">
+  <!-- Pixel-cornered app tile -->
+  <path fill="#050a12" d="M40 16h176v8h16v8h8v16h8v168h-8v16h-8v8h-16v8H40v-8H24v-8h-8v-16H8V48h8V32h8v-8h16z"/>
+  <path fill="#62e6d3" d="M40 8h176v8h16v8h8v16h8v168h-8v16h-8v8h-16v8H40v-8H24v-8h-8v-16H8V48h8V32h8v-8h16zm8 16v8H32v8h-8v16h-8v144h8v16h8v8h16v8h160v-8h16v-8h8v-16h8V56h-8V40h-8v-8h-8v-8z"/>
+  <path fill="#122131" d="M48 24h160v8h16v8h8v16h8v144h-8v16h-8v8h-16v8H48v-8H32v-8h-8v-16h-8V56h8V40h8v-8h8v-8z"/>
+
+  <!-- Desktop PC case -->
+  <path fill="#0a111b" d="M53 197h139v12H53z"/>
+  <path fill="#8ba7b5" d="M49 49h139v146H49z"/>
+  <path fill="#31495b" d="M57 57h123v130H57z"/>
+  <path fill="#132630" d="M67 67h93v94H67z"/>
+  <path fill="#24685d" d="M76 76h75v75H76z"/>
+  <path fill="#17363b" d="M83 83h23v17H83zm48 0h12v35h-12zM83 134h60v9H83z"/>
+  <path fill="#a9b8b2" d="M105 85h25v24h-25z"/>
+  <path fill="#ffc857" d="M110 90h15v14h-15z"/>
+  <path fill="#253d49" stroke="#ffc857" stroke-width="4" d="M80 113h65v18H80z"/>
+  <path fill="#62e6d3" d="M85 88h8v8h-8zm50 38h8v8h-8z"/>
+  <path fill="#17252e" d="M65 167h103v12H65z"/>
+  <path fill="#62e6d3" d="M167 76h5v12h-5z"/>
+  <path fill="#71899a" d="M167 101h5v5h-5z"/>
+
+  <!-- Removed side panel and pixel motion marks -->
+  <path fill="#ffc857" d="M190 68h22v113h-22z"/>
+  <path fill="#d99836" d="M196 76h10v97h-10z"/>
+  <path fill="#ffc857" d="M183 55h5v9h-5zm0 128h5v9h-5zm36-111h12v5h-12zm0 16h8v5h-8zm0 78h12v5h-12z"/>
+
+  <!-- Tiny status pixels -->
+  <path fill="#a4e635" d="M38 217h8v8h-8z"/>
+  <path fill="#62e6d3" d="M51 217h8v8h-8z"/>
+  <path fill="#ffc857" d="M64 217h8v8h-8z"/>
+  <path fill="#31495b" d="M177 217h41v8h-41z"/>
+</svg>
